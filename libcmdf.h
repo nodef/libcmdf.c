@@ -2,7 +2,7 @@
  * libcmdf.h - A library for writing command-line applications
  * Public domain; no warrenty applied, use at your own risk!
  * Authored by:
- *   Ronen Lapushner, 2017-2022.
+ *   Ronen Lapushner, 2017-2025.
  *   Rull Deef, 2020.
  *
  * License:
@@ -132,13 +132,13 @@ char *cmdf__strdup(const char *src);
 void cmdf__trim(char *src);
 void cmdf__print_title(const char *title, char ruler);
 void cmdf__pprint(size_t loffset, const char * const strtoprint);
-void cmdf__print_command_list();
+void cmdf__print_command_list(void);
 
 /* Init/Free functions */
 void cmdf_init(const char *prompt, const char *intro, const char *doc_header,
                const char *undoc_header, char ruler, int use_default_exit);
 #define cmdf_init_quick() cmdf_init(NULL, NULL, NULL, NULL, 0, 1)
-#define cmdf_quit ;
+void cmdf_quit(void);
 
 /* Public interface functions */
 void cmdf_commandloop(void);
@@ -438,6 +438,8 @@ void cmdf_init(const char *prompt, const char *intro, const char *doc_header,
         rl_attempted_completion_function = cmdf__command_name_completion;
     #endif
 }
+
+void cmdf_quit(void) {}
 
 /* Public interface functions */
 void cmdf_commandloop(void) {
@@ -892,4 +894,76 @@ char *cmdf__command_name_iter(const char *text, int state) {
 /* For the C++ support. */
 #ifdef __cplusplus
 }
+
+#include <string>
+#include <vector>
+
+class cmdf {
+    public:
+        static cmdf &instance();
+	~cmdf();
+
+        cmdf(const cmdf& c) = delete;
+        cmdf(cmdf &&c) = delete;
+        cmdf &operator=(const cmdf &c) = delete;
+        cmdf &&operator=(cmdf &&c) = delete;
+
+        void initialize(const std::string &prompt, const std::string &intro, 
+                        const std::string &docHeader, const std::string &undocHeader, 
+                        char ruler, bool useDefaultExit);
+        bool isInitialized() const;
+	CMDF_RETURN registerCommand(cmdf_command_callback &&callback, const std::string &name, const std::string &help);
+	void commandLoop();
+
+    private:
+        bool isInit_;
+
+        cmdf() : isInit_(false) {}
+};
+
+#ifdef LIBCMDF_IMPL
+
+using std::string;
+
+cmdf &cmdf::instance() {
+    static cmdf instance_;
+    return instance_;
+}
+
+bool cmdf::isInitialized() const {
+    return isInit_;
+}
+
+void cmdf::initialize(const string &prompt = "", const string &intro = "", 
+                      const string &docHeader = "", const string &undocHeader = "", 
+                      char ruler = cmdf__default_ruler, bool useDefaultExit = true) {
+    if (isInit_) {
+        return;
+    }
+
+    const auto promptCStr = !prompt.empty() ? prompt.c_str() : NULL;
+    const auto introCStr = !intro.empty() ? intro.c_str() : NULL;
+    const auto docHeaderCStr = !docHeader.empty() ? docHeader.c_str() : NULL;
+    const auto undocHeaderCStr = !undocHeader.empty() ? undocHeader.c_str() : NULL;
+
+    cmdf_init(promptCStr, introCStr, docHeaderCStr, undocHeaderCStr, ruler, static_cast<int>(useDefaultExit));
+    isInit_ = true;
+}
+
+
+cmdf::~cmdf() {
+    cmdf_quit();
+}
+
+CMDF_RETURN cmdf::registerCommand(cmdf_command_callback &&callback, const string &name, const string &help = "") {
+    const auto helpCStr = !help.empty() ? help.c_str() : NULL;
+    return cmdf_register_command(callback, name.c_str(), helpCStr);
+}
+
+void cmdf::commandLoop() {
+    cmdf_commandloop();
+}
+
+#endif /* LIBCMDF_IMPL */
+
 #endif
