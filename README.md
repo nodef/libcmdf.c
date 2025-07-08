@@ -4,7 +4,7 @@ A simple library for writing command-line applications, inspired by Python's [cm
 
 ----------------------------------------------
 
-***Latest version: v.1.4.0 (2022-12-09)***
+***Latest version: v.2.0.0 (2025-07-09)***
 
 ----------------------------------------------
 
@@ -14,14 +14,14 @@ Features
 2. Header only: no linkage! No separate compilation!
 3. Cross-platform
 4. GNU Readline support
-5. Can be used from C++ (without `-fpermissive`)
+5. Has C++ API
 
 Requirements
 ------------
 1. **Any ANSI C/ISO C90-compliant compiler**
-<br />*Tested on GCC 5.4+, clang 4.0+, Apple Clang 14, and MSVC 14.0*
+<br />*Tested on GCC 5.4+, clang 4.0+, Apple Clang 14/17, and MSVC 14.0*
 2. **Linux/Windows/Mac**
-<br />*Tested on Ubuntu 16.04 - 20.04, Fedora 26 - 30, Windows 10 (all AMD64) and Mac (M1)*
+<br />*Tested on Ubuntu 16.04 - 20.04, Fedora 26 - 30, Windows 10 (all AMD64) and Mac (Apple Silicon)*
 3. **GNU Readline development libraries (optional)**
 <br />*Required for GNU Readline support, if enabled.*
 
@@ -38,7 +38,7 @@ You will, however, need to define <code>LIBCMDF_IMPL</code> **only once**, and *
 ...
 ```
 
-API in a nutshell
+C API
 --------------------
 First of all, you must initialize libcmdf by calling either `cmdf_init_quick()` or `cmdf_init`:
 ```
@@ -92,7 +92,24 @@ After that, initialization of the library is pretty much complete, so you can ju
 cmdf_commandloop();
 ```
 
-In any case you may refer to <code>test.c</code> for a working example.
+Use `tests/c_test/c_test.c` as reference for a working example.
+
+C++ API
+-----------------
+The C++ API uses the `cmdf` class as a singleton - it requires initialization before use:
+```cpp
+    cmdf &c = cmdf::instance();
+
+    c.initialize("libcmdf-test> ", PROG_INTRO);
+```
+
+Registering commands and the command loop logic works the same way it does in the C API:
+```cpp
+    c.registerCommand(do_printargs, "printargs", "Prints the arguments to the screen");
+    c.commandLoop();
+```
+
+Use `tests/cpp_test/cpp_test.cpp` as reference for a working example.
 
 
 Configuration
@@ -138,13 +155,6 @@ At the moment, the initialization routines don't allocate any memory, or perform
 initialization tricks that require deinitalization.
 
 This might change in the future, though, so make sure to call <code>cmdf_quit</code> when you're done with it!
-
-### Any plans to implement a proper C++ API, Linenoise/anything else?
-I initially had plans to implement a lot of features.
-However, I'm not working with C/C++ professionally anymore so my interest in these languages
-and the ecosystem has somewhat dwindled.
-
-This does not affect the development status of this library - it will still be maintained and developed.
 
 -------------------------------------------------------------------------------------------------------
 
