@@ -1,7 +1,7 @@
 /*
  * test.c - A test program for the libcmdf library
  * Public domain; no warrenty applied, use at your own risk!
- * Authored by Ronen Lapushner, 2017.
+ * Authored by Ronen Lapushner, 2017 - 2025.
  *
  * License:
  * --------
@@ -22,13 +22,14 @@
                        "As you can see, this is concatenated properly. It's pretty good!"
 
 static CMDF_RETURN do_hello(cmdf_arglist *arglist) {
+    (void)arglist;
     printf("\nHello, world!\n");
 
     return CMDF_OK;
 }
 
 static CMDF_RETURN do_printargs(cmdf_arglist *arglist) {
-    int i;
+    size_t i;
 
     if (!arglist) {
         printf("\nNo arguments provided!\n");
@@ -37,7 +38,7 @@ static CMDF_RETURN do_printargs(cmdf_arglist *arglist) {
 
     printf("\nTotal arguments = %lu", arglist->count);
     for (i = 0; i < arglist->count; i++)
-        printf("\nArgument %d: \'%s\'", i, arglist->args[i]);
+        printf("\nArgument %lu: \'%s\'", i, arglist->args[i]);
 
     printf("\n");
 

@@ -1,10 +1,11 @@
-CXXFLAGS=-Wall -Werror -g -O0 -I"../.."
+CXXFLAGS=-Wall -Werror -Wextra -g -O0 -I"../.."
 LDLIBS=-lreadline
 
 ALL: compile_cpp_test
 
 clean:
-	rm cpp_test
+	rm -f cpp_test
+	rm -rf *.dSYM
 
 cpp_test: cpp_test.cpp
 

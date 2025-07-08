@@ -1,7 +1,7 @@
 /*
- * test.c - A test program for the libcmdf library
+ * test.cpp - A test program for the libcmdf library, using the C++ API
  * Public domain; no warrenty applied, use at your own risk!
- * Authored by Ronen Lapushner, 2017.
+ * Authored by Ronen Lapushner, 2017 - 2025.
  *
  * License:
  * --------
@@ -24,7 +24,7 @@ using std::endl;
 #define PRINTARGS_HELP "This is a very long help string for a command.\n" \
                        "As you can see, this is concatenated properly. It's pretty good!"
 
-static CMDF_RETURN do_hello(cmdf_arglist *arglist) {
+static CMDF_RETURN do_hello(cmdf_arglist *) {
     cout << "Hello, world!" << endl;
 
     return CMDF_OK;
@@ -46,13 +46,18 @@ static CMDF_RETURN do_printargs(cmdf_arglist *arglist) {
 }
 
 int main() {
-    cmdf_init("libcmdf-test> ", PROG_INTRO, NULL, NULL, 0, 1);
+    cmdf &c = cmdf::instance();
+
+    // This will always be true, of course, so this is here just to test out the API
+    if (!c.isInitialized()) {
+        c.initialize("libcmdf-test> ", PROG_INTRO);
+    }
 
     /* Register our custom commands */
-    cmdf_register_command(do_hello, "hello", NULL);
-    cmdf_register_command(do_printargs, "printargs", PRINTARGS_HELP);
+    c.registerCommand(do_hello, "hello");
+    c.registerCommand(do_printargs, "printargs", PRINTARGS_HELP);
 
-    cmdf_commandloop();
+    c.commandLoop();
 
     return 0;
 }

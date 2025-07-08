@@ -2,7 +2,7 @@
  * libcmdf.h - A library for writing command-line applications
  * Public domain; no warrenty applied, use at your own risk!
  * Authored by:
- *   Ronen Lapushner, 2017-2022.
+ *   Ronen Lapushner, 2017-2025.
  *   Rull Deef, 2020.
  *
  * License:
@@ -132,13 +132,13 @@ char *cmdf__strdup(const char *src);
 void cmdf__trim(char *src);
 void cmdf__print_title(const char *title, char ruler);
 void cmdf__pprint(size_t loffset, const char * const strtoprint);
-void cmdf__print_command_list();
+void cmdf__print_command_list(void);
 
 /* Init/Free functions */
 void cmdf_init(const char *prompt, const char *intro, const char *doc_header,
                const char *undoc_header, char ruler, int use_default_exit);
 #define cmdf_init_quick() cmdf_init(NULL, NULL, NULL, NULL, 0, 1)
-#define cmdf_quit ;
+void cmdf_quit(void);
 
 /* Public interface functions */
 void cmdf_commandloop(void);
@@ -156,6 +156,7 @@ void cmdf_set_prompt(const char *new_prompt);
 void cmdf_set_intro(const char *new_intro);
 void cmdf_set_doc_header(const char *new_doc_header);
 void cmdf_set_undoc_header(const char *new_undoc_header);
+void cmdf_set_ruler(char new_ruler);
 
 /* Argument Parsing */
 cmdf_arglist *cmdf_parse_arguments(char *argline);
@@ -168,9 +169,9 @@ CMDF_RETURN cmdf_register_command(cmdf_command_callback callback, const char *cm
 /* Default callbacks */
 CMDF_RETURN cmdf__default_do_help(cmdf_arglist *arglist);
 CMDF_RETURN cmdf__default_do_command(const char *cmdname, cmdf_arglist *arglist);
-CMDF_RETURN cmdf__default_do_emptyline(cmdf_arglist *arglist /* Unused */);
-CMDF_RETURN cmdf__default_do_exit(cmdf_arglist *arglist /* Unused */);
-CMDF_RETURN cmdf__default_do_noop(cmdf_arglist *arglist /* Unused */);
+CMDF_RETURN cmdf__default_do_emptyline(cmdf_arglist */* Unused */);
+CMDF_RETURN cmdf__default_do_exit(cmdf_arglist * /* Unused */);
+CMDF_RETURN cmdf__default_do_noop(cmdf_arglist * /* Unused */);
 void cmdf__default_commandloop(void);
 
 /* Utility Functions */
@@ -232,7 +233,7 @@ static struct cmdf__settings_stack_s {
     struct cmdf__settings_s *top; /* actual settings for currect process */
 } cmdf__settings_stack =
 #ifdef __cplusplus /* Required to avoid -Wmissing-braces on Apple clang and possibly others */
-    {{}};
+    { .size = 0 };
 #else
     { 0 };
 #endif
@@ -245,7 +246,7 @@ static struct cmdf__entry_s {
 
 /* Utility Functions */
 char *cmdf__strdup(const char *src) {
-    char *dst = (char *)(CMDF_MALLOC(sizeof(char) * (strlen(src) + 1))); /* src + '\0' */
+    char *dst = (char *)(CMDF_MALLOC(strlen(src) + 1)); /* src + '\0' */
     if (!dst)
         return NULL;
 
@@ -274,7 +275,7 @@ void cmdf__trim(char *src) {
     if (src != begin) {
         end_location = strlen(begin);
         memmove(src, begin, strlen(begin) + 1);
-        memset(begin + end_location, '\0', sizeof(char) * strlen(begin - end_location));
+        memset(begin + end_location, '\0', strlen(begin - end_location));
     }
 
     /* Replaces spaces at the end of the string */
@@ -439,6 +440,8 @@ void cmdf_init(const char *prompt, const char *intro, const char *doc_header,
     #endif
 }
 
+void cmdf_quit(void) {}
+
 /* Public interface functions */
 void cmdf_commandloop(void) {
     cmdf__default_commandloop();
@@ -484,6 +487,10 @@ void cmdf_set_doc_header(const char *new_doc_header) {
 
 void cmdf_set_undoc_header(const char *new_undoc_header) {
     cmdf__settings_stack.top->undoc_header = new_undoc_header ? new_undoc_header : cmdf__default_undoc_header;
+}
+
+void cmdf_set_ruler(char new_ruler) {
+    cmdf__settings_stack.top->ruler = new_ruler;
 }
 
 /* Argument Parsing */
@@ -705,16 +712,19 @@ CMDF_RETURN cmdf__default_do_help(cmdf_arglist *arglist) {
 }
 
 CMDF_RETURN cmdf__default_do_emptyline(cmdf_arglist *arglist /* Unusued */) {
+    (void)arglist;
     return CMDF_OK;
 }
 
 CMDF_RETURN cmdf__default_do_exit(cmdf_arglist *arglist /* Unused */) {
+    (void)arglist;
     cmdf__settings_stack.top->exit_flag = 1;
 
     return CMDF_OK;
 }
 
 CMDF_RETURN cmdf__default_do_noop(cmdf_arglist *arglist /* Unused */) {
+    (void)arglist;
     return CMDF_OK;
 }
 
@@ -748,7 +758,7 @@ void cmdf__default_commandloop(void) {
         /* Print prompt and get input */
         #ifndef CMDF_READLINE_SUPPORT
             fprintf(CMDF_STDOUT, "%s", cmdf__settings_stack.top->prompt);
-            fgets(inputbuff, sizeof(char) * CMDF_MAX_INPUT_BUFFER_LENGTH, CMDF_STDIN);
+            fgets(inputbuff, CMDF_MAX_INPUT_BUFFER_LENGTH, CMDF_STDIN);
 
             /* Check for EOF */
             if (feof(CMDF_STDIN)) {
@@ -892,4 +902,136 @@ char *cmdf__command_name_iter(const char *text, int state) {
 /* For the C++ support. */
 #ifdef __cplusplus
 }
+
+#include <string>
+
+class cmdf {
+    public:
+        static cmdf &instance();
+	~cmdf();
+
+        cmdf(const cmdf& c) = delete;
+        cmdf(cmdf &&c) = delete;
+        cmdf &operator=(const cmdf &c) = delete;
+        cmdf &&operator=(cmdf &&c) = delete;
+
+        void initialize(const std::string &prompt, const std::string &intro, 
+                        const std::string &docHeader, const std::string &undocHeader, 
+                        char ruler, bool useDefaultExit);
+        bool isInitialized() const;
+	CMDF_RETURN registerCommand(cmdf_command_callback &&callback, const std::string &name, const std::string &help);
+	void commandLoop();
+
+        std::string &prompt();
+        std::string &intro();
+        std::string &docHeader();
+        std::string &undocHeader();
+        char ruler() const;
+
+        void setPrompt(const std::string &newPrompt);
+        void setIntro(const std::string &newIntro);
+        void setDocHeader(const std::string &newDocHeader);
+        void setUndocHeader(const std::string &newUndocHeader);
+        void setRuler(char ruler) noexcept;
+
+        // Utility functions for converting between cmdf_arglists and std::vector<std::string>
+
+    private:
+        bool isInit_;
+        std::string prompt_, intro_, docHeader_, undocHeader_;
+        char ruler_;
+
+        cmdf() : isInit_(false) {}
+};
+
+#ifdef LIBCMDF_IMPL
+
+using std::string;
+
+cmdf &cmdf::instance() {
+    static cmdf instance_;
+    return instance_;
+}
+
+bool cmdf::isInitialized() const {
+    return isInit_;
+}
+
+void cmdf::initialize(const string &prompt = "", const string &intro = "", 
+                      const string &docHeader = "", const string &undocHeader = "", 
+                      char ruler = cmdf__default_ruler, bool useDefaultExit = true) {
+    if (isInit_) {
+        return;
+    }
+
+    prompt_ = prompt;
+    intro_ = intro;
+    docHeader_ = docHeader;
+    undocHeader_ = undocHeader;
+    ruler_ = ruler;
+
+    cmdf_init(prompt.c_str(), intro_.c_str(), docHeader_.c_str(), undocHeader_.c_str(), ruler_, static_cast<int>(useDefaultExit));
+    isInit_ = true;
+}
+
+cmdf::~cmdf() {
+    cmdf_quit();
+}
+
+CMDF_RETURN cmdf::registerCommand(cmdf_command_callback &&callback, const string &name, const string &help = "") {
+    const auto helpCStr = !help.empty() ? help.c_str() : NULL;
+    return cmdf_register_command(callback, name.c_str(), helpCStr);
+}
+
+void cmdf::commandLoop() {
+    cmdf_commandloop();
+}
+
+std::string &cmdf::prompt() {
+    return prompt_;
+}
+
+std::string &cmdf::intro() {
+    return intro_;
+}
+
+std::string &cmdf::docHeader() {
+    return docHeader_;
+}
+
+std::string &cmdf::undocHeader() {
+    return undocHeader_;
+}
+
+char cmdf::ruler() const {
+    return ruler_;
+}
+
+void cmdf::setPrompt(const std::string &newPrompt) {
+    prompt_ = newPrompt;
+    cmdf_set_prompt(prompt_.c_str());
+}
+
+void cmdf::setIntro(const std::string &newIntro) {
+    intro_ = newIntro;
+    cmdf_set_intro(intro_.c_str());
+}
+
+void cmdf::setDocHeader(const std::string &newDocHeader) {
+    docHeader_ = newDocHeader;
+    cmdf_set_doc_header(docHeader_.c_str());
+}
+
+void cmdf::setUndocHeader(const std::string &newUndocHeader) {
+    undocHeader_ = newUndocHeader;
+    cmdf_set_undoc_header(undocHeader_.c_str());
+}
+
+void cmdf::setRuler(char ruler) noexcept {
+    ruler_ = ruler;
+    cmdf_set_ruler(ruler);
+}
+
+#endif /* LIBCMDF_IMPL */
+
 #endif
