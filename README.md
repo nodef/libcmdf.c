@@ -98,15 +98,15 @@ C++ API
 -----------------
 The C++ API uses the `cmdf` class as a singleton - it requires initialization before use:
 ```cpp
-    cmdf &c = cmdf::instance();
+cmdf &c = cmdf::instance();
 
-    c.initialize("libcmdf-test> ", PROG_INTRO);
+c.initialize("libcmdf-test> ", PROG_INTRO);
 ```
 
 Registering commands and the command loop logic works the same way it does in the C API:
 ```cpp
-    c.registerCommand(do_printargs, "printargs", "Prints the arguments to the screen");
-    c.commandLoop();
+c.registerCommand(do_printargs, "printargs", "Prints the arguments to the screen");
+c.commandLoop();
 ```
 
 Use `tests/cpp_test/cpp_test.cpp` as reference for a working example.
