@@ -1,4 +1,4 @@
-CFLAGS=-ansi -pedantic -Wall -Werror -g -O0 -D_POSIX_SOURCE -I"../.."
+CFLAGS=-ansi -pedantic -Wall -Werror -Wextra -g -O0 -D_POSIX_SOURCE -I"../.."
 LDLIBS=-lreadline
 
 ALL: compile_c_test compile_c_submenu

@@ -2,6 +2,7 @@
  * submenu.c - A test program for the libcmdf library
  * Public domain; no warrenty applied, use at your own risk!
  * Authored by Rull Deef, 2020.
+ * Authored by Ronen Lapushner, 2025.
  *
  * License:
  * --------
@@ -23,13 +24,15 @@
 
 static CMDF_RETURN do_hello(cmdf_arglist *arglist)
 {
+    (void)arglist;
+
     printf("\nHello, world!\n");
     return CMDF_OK;
 }
 
 static CMDF_RETURN do_printargs(cmdf_arglist *arglist)
 {
-    int i;
+    size_t i;
 
     if (!arglist)
     {
@@ -39,7 +42,7 @@ static CMDF_RETURN do_printargs(cmdf_arglist *arglist)
 
     printf("\nTotal arguments = %lu", arglist->count);
     for (i = 0; i < arglist->count; i++)
-        printf("\nArgument %d: \'%s\'", i, arglist->args[i]);
+        printf("\nArgument %lu: \'%s\'", i, arglist->args[i]);
 
     printf("\n");
 
@@ -48,6 +51,7 @@ static CMDF_RETURN do_printargs(cmdf_arglist *arglist)
 
 static CMDF_RETURN do_submenu(cmdf_arglist *arglist)
 {
+    (void)arglist;
     cmdf_init("libcmdf-test/submenu> ", SUBMENU_INTRO, NULL, NULL, 0, 1);
 
     /* Register our custom commands */

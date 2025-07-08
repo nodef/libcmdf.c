@@ -24,7 +24,7 @@ using std::endl;
 #define PRINTARGS_HELP "This is a very long help string for a command.\n" \
                        "As you can see, this is concatenated properly. It's pretty good!"
 
-static CMDF_RETURN do_hello(cmdf_arglist *arglist) {
+static CMDF_RETURN do_hello(cmdf_arglist *) {
     cout << "Hello, world!" << endl;
 
     return CMDF_OK;

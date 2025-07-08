@@ -169,9 +169,9 @@ CMDF_RETURN cmdf_register_command(cmdf_command_callback callback, const char *cm
 /* Default callbacks */
 CMDF_RETURN cmdf__default_do_help(cmdf_arglist *arglist);
 CMDF_RETURN cmdf__default_do_command(const char *cmdname, cmdf_arglist *arglist);
-CMDF_RETURN cmdf__default_do_emptyline(cmdf_arglist *arglist /* Unused */);
-CMDF_RETURN cmdf__default_do_exit(cmdf_arglist *arglist /* Unused */);
-CMDF_RETURN cmdf__default_do_noop(cmdf_arglist *arglist /* Unused */);
+CMDF_RETURN cmdf__default_do_emptyline(cmdf_arglist */* Unused */);
+CMDF_RETURN cmdf__default_do_exit(cmdf_arglist * /* Unused */);
+CMDF_RETURN cmdf__default_do_noop(cmdf_arglist * /* Unused */);
 void cmdf__default_commandloop(void);
 
 /* Utility Functions */
@@ -233,7 +233,7 @@ static struct cmdf__settings_stack_s {
     struct cmdf__settings_s *top; /* actual settings for currect process */
 } cmdf__settings_stack =
 #ifdef __cplusplus /* Required to avoid -Wmissing-braces on Apple clang and possibly others */
-    {{}};
+    { .size = 0 };
 #else
     { 0 };
 #endif
@@ -712,16 +712,19 @@ CMDF_RETURN cmdf__default_do_help(cmdf_arglist *arglist) {
 }
 
 CMDF_RETURN cmdf__default_do_emptyline(cmdf_arglist *arglist /* Unusued */) {
+    (void)arglist;
     return CMDF_OK;
 }
 
 CMDF_RETURN cmdf__default_do_exit(cmdf_arglist *arglist /* Unused */) {
+    (void)arglist;
     cmdf__settings_stack.top->exit_flag = 1;
 
     return CMDF_OK;
 }
 
 CMDF_RETURN cmdf__default_do_noop(cmdf_arglist *arglist /* Unused */) {
+    (void)arglist;
     return CMDF_OK;
 }
 

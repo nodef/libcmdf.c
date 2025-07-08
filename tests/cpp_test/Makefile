@@ -1,4 +1,4 @@
-CXXFLAGS=-Wall -Werror -g -O0 -I"../.."
+CXXFLAGS=-Wall -Werror -Wextra -g -O0 -I"../.."
 LDLIBS=-lreadline
 
 ALL: compile_cpp_test
