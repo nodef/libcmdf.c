@@ -901,7 +901,6 @@ char *cmdf__command_name_iter(const char *text, int state) {
 }
 
 #include <string>
-#include <vector>
 
 class cmdf {
     public:
@@ -931,6 +930,8 @@ class cmdf {
         void setDocHeader(const std::string &newDocHeader);
         void setUndocHeader(const std::string &newUndocHeader);
         void setRuler(char ruler) noexcept;
+
+        // Utility functions for converting between cmdf_arglists and std::vector<std::string>
 
     private:
         bool isInit_;
