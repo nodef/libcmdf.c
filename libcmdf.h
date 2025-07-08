@@ -156,6 +156,7 @@ void cmdf_set_prompt(const char *new_prompt);
 void cmdf_set_intro(const char *new_intro);
 void cmdf_set_doc_header(const char *new_doc_header);
 void cmdf_set_undoc_header(const char *new_undoc_header);
+void cmdf_set_ruler(char new_ruler);
 
 /* Argument Parsing */
 cmdf_arglist *cmdf_parse_arguments(char *argline);
@@ -486,6 +487,10 @@ void cmdf_set_doc_header(const char *new_doc_header) {
 
 void cmdf_set_undoc_header(const char *new_undoc_header) {
     cmdf__settings_stack.top->undoc_header = new_undoc_header ? new_undoc_header : cmdf__default_undoc_header;
+}
+
+void cmdf_set_ruler(char new_ruler) {
+    cmdf__settings_stack.top->ruler = new_ruler;
 }
 
 /* Argument Parsing */
@@ -915,8 +920,22 @@ class cmdf {
 	CMDF_RETURN registerCommand(cmdf_command_callback &&callback, const std::string &name, const std::string &help);
 	void commandLoop();
 
+        std::string &prompt();
+        std::string &intro();
+        std::string &docHeader();
+        std::string &undocHeader();
+        char ruler() const;
+
+        void setPrompt(const std::string &newPrompt);
+        void setIntro(const std::string &newIntro);
+        void setDocHeader(const std::string &newDocHeader);
+        void setUndocHeader(const std::string &newUndocHeader);
+        void setRuler(char ruler) noexcept;
+
     private:
         bool isInit_;
+        std::string prompt_, intro_, docHeader_, undocHeader_;
+        char ruler_;
 
         cmdf() : isInit_(false) {}
 };
@@ -941,15 +960,15 @@ void cmdf::initialize(const string &prompt = "", const string &intro = "",
         return;
     }
 
-    const auto promptCStr = !prompt.empty() ? prompt.c_str() : NULL;
-    const auto introCStr = !intro.empty() ? intro.c_str() : NULL;
-    const auto docHeaderCStr = !docHeader.empty() ? docHeader.c_str() : NULL;
-    const auto undocHeaderCStr = !undocHeader.empty() ? undocHeader.c_str() : NULL;
+    prompt_ = prompt;
+    intro_ = intro;
+    docHeader_ = docHeader;
+    undocHeader_ = undocHeader;
+    ruler_ = ruler;
 
-    cmdf_init(promptCStr, introCStr, docHeaderCStr, undocHeaderCStr, ruler, static_cast<int>(useDefaultExit));
+    cmdf_init(prompt.c_str(), intro_.c_str(), docHeader_.c_str(), undocHeader_.c_str(), ruler_, static_cast<int>(useDefaultExit));
     isInit_ = true;
 }
-
 
 cmdf::~cmdf() {
     cmdf_quit();
@@ -962,6 +981,51 @@ CMDF_RETURN cmdf::registerCommand(cmdf_command_callback &&callback, const string
 
 void cmdf::commandLoop() {
     cmdf_commandloop();
+}
+
+std::string &cmdf::prompt() {
+    return prompt_;
+}
+
+std::string &cmdf::intro() {
+    return intro_;
+}
+
+std::string &cmdf::docHeader() {
+    return docHeader_;
+}
+
+std::string &cmdf::undocHeader() {
+    return undocHeader_;
+}
+
+char cmdf::ruler() const {
+    return ruler_;
+}
+
+void cmdf::setPrompt(const std::string &newPrompt) {
+    prompt_ = newPrompt;
+    cmdf_set_prompt(prompt_.c_str());
+}
+
+void cmdf::setIntro(const std::string &newIntro) {
+    intro_ = newIntro;
+    cmdf_set_intro(intro_.c_str());
+}
+
+void cmdf::setDocHeader(const std::string &newDocHeader) {
+    docHeader_ = newDocHeader;
+    cmdf_set_doc_header(docHeader_.c_str());
+}
+
+void cmdf::setUndocHeader(const std::string &newUndocHeader) {
+    undocHeader_ = newUndocHeader;
+    cmdf_set_undoc_header(undocHeader_.c_str());
+}
+
+void cmdf::setRuler(char ruler) noexcept {
+    ruler_ = ruler;
+    cmdf_set_ruler(ruler);
 }
 
 #endif /* LIBCMDF_IMPL */
