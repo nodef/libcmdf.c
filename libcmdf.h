@@ -245,7 +245,7 @@ static struct cmdf__entry_s {
 
 /* Utility Functions */
 char *cmdf__strdup(const char *src) {
-    char *dst = (char *)(CMDF_MALLOC(sizeof(char) * (strlen(src) + 1))); /* src + '\0' */
+    char *dst = (char *)(CMDF_MALLOC(strlen(src) + 1)); /* src + '\0' */
     if (!dst)
         return NULL;
 
@@ -274,7 +274,7 @@ void cmdf__trim(char *src) {
     if (src != begin) {
         end_location = strlen(begin);
         memmove(src, begin, strlen(begin) + 1);
-        memset(begin + end_location, '\0', sizeof(char) * strlen(begin - end_location));
+        memset(begin + end_location, '\0', strlen(begin - end_location));
     }
 
     /* Replaces spaces at the end of the string */
@@ -750,7 +750,7 @@ void cmdf__default_commandloop(void) {
         /* Print prompt and get input */
         #ifndef CMDF_READLINE_SUPPORT
             fprintf(CMDF_STDOUT, "%s", cmdf__settings_stack.top->prompt);
-            fgets(inputbuff, sizeof(char) * CMDF_MAX_INPUT_BUFFER_LENGTH, CMDF_STDIN);
+            fgets(inputbuff, CMDF_MAX_INPUT_BUFFER_LENGTH, CMDF_STDIN);
 
             /* Check for EOF */
             if (feof(CMDF_STDIN)) {
