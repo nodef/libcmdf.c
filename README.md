@@ -1,6 +1,6 @@
 libcmdf.h
 =============
-A simple library for writing command-line applications, inspired by Python's [cmd](https://docs.python.org/3/library/cmd.html) module.
+A simple library for writing command-line applications, inspired by Python's [cmd](https://docs.python.org/3/library/cmd.html) module. By [Ronen Kreimer](https://github.com/ronen25).
 
 ----------------------------------------------
 
@@ -25,11 +25,24 @@ Requirements
 3. **GNU Readline development libraries (optional)**
 <br />*Required for GNU Readline support, if enabled.*
 
+Installation
+-------------
+
+Run:
+```bash
+$ npm i libcmdf.c
+```
+
+And then include `libcmdf.h` as follows:
+```c
+#include "node_modules/libcmdf.c/libcmdf.h"
+```
+
 Usage
 ------
 Being a header-only library, you don't need to do any complex linkage - just drop it in your project tree and you're done!
 
-You will, however, need to define <code>LIBCMDF_IMPL</code> **only once**, and **before you include the library**, like this:
+You will need to define <code>LIBCMDF_IMPL</code> **only once**, and **before you include the library**, like this:
 
 ```
 #define LIBCMDF_IMPL
@@ -163,3 +176,10 @@ License
 This software is dual-licensed to the public domain and under the following license:
 you are granted a perpetual, irrevocable license to copy, modify,
 publish and distribute this file as you see fit.
+
+<br>
+<br>
+
+
+[![ORG](https://img.shields.io/badge/org-nodef-green?logo=Org)](https://nodef.github.io)
+![](https://ga-beacon.deno.dev/G-RC63DPBH3P:SH3Eq-NoQ9mwgYeHWxu7cw/github.com/nodef/libcmdf.c)
