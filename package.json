@@ -1,0 +1,22 @@
+{
+  "name": "libcmdf.c",
+  "version": "2.0.0",
+  "description": "Single-header library for writing CLI applications in C/C++; Ronen Kreimer (2017).",
+  "keywords": [
+    "c",
+    "library",
+    "cli",
+    "command line",
+    "header only"
+  ],
+  "homepage": "https://github.com/nodef/libcmdf.c#readme",
+  "bugs": {
+    "url": "https://github.com/nodef/libcmdf.c/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nodef/libcmdf.c.git"
+  },
+  "license": "CC0-1.0",
+  "main": "libcmdf.h"
+}
